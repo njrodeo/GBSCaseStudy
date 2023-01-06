@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="ISO-8859-1">
+<title>Compensation history</title>
+<!-- style sheet -->
+<link rel="stylesheet" 
+	href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" 
+	integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" 
+	crossorigin="anonymous">
+
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+	
+	<script src="https://kit.fontawesome.com/986160be55.js" crossorigin="anonymous"></script>
+	
+	<style type="text/css">
+ .form-search{
+ 	margin-bottom:20px;
+ }
+ 
+ </style>
+	
+
+</head>
+<body>
+<nav class="navbar navbar-expand-md bg-dark navbar-dark">
+  <!-- Brand -->
+  <a class="navbar-brand" href="#">Employee Management</a>
+
+  <!-- Toggler/collapsibe Button -->
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <!-- Navbar links -->
+  <div class="collapse navbar-collapse" id="collapsibleNavbar">
+  	<ul class="navbar-nav">
+  	  <li class="nav-item">
+        <a class="nav-link" th:href="@{/}">Home</a>
+      </li>
+      
+    </ul>
+  	
+    <ul class="navbar-nav ml-auto">
+       <li>
+        <a class="nav-link" th:href="@{/logout}">Logout</a>
+      </li>
+    </ul>
+    
+  </div>
+</nav>
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+	  	<symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
+	    	<path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+	  	</symbol>
+	</svg>
+	
+	<div class="alert alert-success d-flex align-items-center"  role="alert" th:if="${added}">
+	  	<svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg>
+	  	<div th:text="${added}">
+	  	</div>
+	</div>
+	
+	<div class="alert alert-success d-flex align-items-center" role="alert" th:if="${updated}">
+	  	<svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg>
+	  	<div th:text="${updated}"></div>
+	</div>
+	
+	<br>
+
+		<div class="container">
+		<div class="d-flex justify-content-center">
+			<h1>Employee Compensation History</h1>
+		</div>
+		<div class = "col-lg-3">
+				<a th:href="@{/employees/compensation/new}" class = "btn btn-info btn-sm mb-3">Add Compensation</a>
+		</div>
+		<!-- New Line : Filter -->
+		<div class="form-search">
+		
+			<form th:action="@{/employees/compensation/search}" th:object="${filter}" method="POST">
+				<div class="row">
+					<div class="col-md-1 d-flex align-items-center">
+						<label>Filter by:</label>
+					</div>
+					<div class="col-md-4 adjust">
+						<div class="form-floating">
+				   			<input type="date" name="startDate" th:value="${startDate}" id="startDate" class="form-control">
+				   			<Label for="startDate">Start Date</Label>
+				   		</div>
+					</div>
+				  	<div class="col-md-4 adjust">
+				  		<div class="form-floating">
+				   			<input type="date" name="endDate" th:value="${endDate}" class="form-control">
+				   			<Label for="endDate">End Date</Label>
+				   		</div>
+				  	</div>
+				  	<div class="col-md-3 d-grid gap-2 d-md-flex justify-content-md-end adjust">
+				  		<div class="d-flex align-items-center">
+				   			<button class="btn btn-info me-md-2" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+							<a  class="btn btn-secondary clear" type="button" th:href="@{/employees/compensation/{id}(id=${employee})}"><i class="fa-solid fa-rotate-left"></i> Clear</a>
+				  		</div>
+				  	</div>
+				</div>
+			</form>
+		</div>
+		
+		<table class="table table-striped table-bordered">
+			<thead class="table-dark">
+				<tr>
+					<th>Date</th>
+					<th>Total</th>
+					<th>Action</th>
+				</tr>
+			</thead>
+			
+			<tbody>
+				<tr th:each = "compensation : ${compensations}">
+					<td width=250 th:text = "${#dates.format(compensation.compDate, 'MMMM dd, yyyy')}"></td>
+					<td width=400 class="text-end" th:text = "${#numbers.formatDecimal(compensation.amount, 0, 'COMMA', 2, 'POINT')}"></td>
+					<td width=10 class="text-center">
+						<a th:href="@{/employees/compensation/breakdown/{employeeId}/{compDate}(employeeId=${compensation.employeeId}, compDate=${compensation.compDate})}" class="btn btn-sm" data-bs-toggle="tooltip" data-bs-placement="bottom" title="View Breakdown">
+							<i class="fa-solid fa-list" style="font-size: 24px; color: #16aaff;"></i>
+						</a>
+					</td>
+					 
+				</tr>
+				<tr th:if="${#lists.isEmpty(compensations)}">
+					<th colspan=3 style="text-align:center">0 RESULTS FOUND</th>
+				</tr>
+			</tbody>
+		</table>
+		
+	</div>
+	
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
+	<script type="text/javascript" src="/index.js"></script>
+</body>
+</html>
